@@ -35,11 +35,33 @@ def require(condition: bool, task: int, message: str) -> None:
 
 
 def check_outputs() -> None:
+    import worldstage_homework as homework
+
     clean = pd.read_csv(ROOT / "worldstage_shows.csv")
     raw = pd.read_csv(ROOT / "worldstage_shows_raw.csv")
+    aliases = pd.read_csv(ROOT / "country_aliases.csv")
     summary = pd.read_csv(ROOT / "regional_summary.csv")
     cleaned = pd.read_csv(ROOT / "worldstage_cleaned.csv")
     audit = pd.read_csv(ROOT / "cleaning_audit.csv")
+
+    metrics = homework.add_show_metrics(clean)
+    require(
+        {"sell_through", "revenue"}.issubset(metrics.columns),
+        1,
+        "both derived columns are required",
+    )
+    expected_sell_through = clean["tickets_sold"] / clean["capacity"]
+    expected_revenue = clean["tickets_sold"] * clean["ticket_price"]
+    require(
+        metrics["sell_through"].equals(expected_sell_through),
+        1,
+        "sell_through values differ from the defined ratio",
+    )
+    require(
+        metrics["revenue"].equals(expected_revenue),
+        1,
+        "revenue values differ from the defined product",
+    )
 
     required_summary = [
         "region",
@@ -87,6 +109,31 @@ def check_outputs() -> None:
         2,
         "country counts are inconsistent",
     )
+    for row in summary.itertuples(index=False):
+        region_rows = metrics.loc[metrics["region"].eq(row.region)]
+        require(
+            row.total_tickets == region_rows["tickets_sold"].sum(),
+            2,
+            "a regional ticket total is incorrect",
+        )
+        require(
+            row.avg_sell_through == round(region_rows["sell_through"].mean(), 4),
+            2,
+            "a regional sell-through average is incorrect",
+        )
+        require(
+            row.total_revenue == region_rows["revenue"].sum(),
+            2,
+            "a regional revenue total is incorrect",
+        )
+
+    specimen = pd.Series([" U.S. ", "south-korea", "U.K.", pd.NA], dtype="string")
+    expected_keys = pd.Series(["us", "south korea", "uk", pd.NA], dtype="string")
+    require(
+        homework.normalize_country_keys(specimen).equals(expected_keys),
+        3,
+        "country-key normalization differs on the checker specimen",
+    )
 
     require(len(cleaned) == len(raw), 4, "cleaning must preserve all raw rows")
     require(set(raw.columns).issubset(cleaned.columns), 4, "a raw column was removed")
@@ -100,6 +147,19 @@ def check_outputs() -> None:
         cleaned.loc[unknown_mask, ["country", "region"]].isna().all().all(),
         4,
         "an unknown country was guessed",
+    )
+    mapped = homework.map_locations(raw, aliases)
+    country_lookup = aliases.set_index("country_key")["country"]
+    region_lookup = aliases.set_index("country_key")["region"]
+    require(
+        mapped["country"].equals(mapped["country_key"].map(country_lookup)),
+        4,
+        "country values differ from the approved lookup",
+    )
+    require(
+        mapped["region"].equals(mapped["country_key"].map(region_lookup)),
+        4,
+        "region values differ from the approved lookup",
     )
 
     require(
@@ -119,6 +179,19 @@ def check_outputs() -> None:
         5,
         "event labels are not standardized",
     )
+    labels = homework.clean_labels(mapped)
+    require(
+        labels[["event_type", "status"]]
+        .astype("string")
+        .fillna("<missing>")
+        .equals(
+            cleaned[["event_type", "status"]]
+            .astype("string")
+            .fillna("<missing>")
+        ),
+        5,
+        "saved labels differ from the Task 5 result",
+    )
 
     require("ticket_price" in cleaned.columns, 6, "numeric ticket_price is missing")
     raw_price = raw["ticket_price_raw"].astype("string").str.strip().str.lower()
@@ -133,6 +206,14 @@ def check_outputs() -> None:
         cleaned.loc[unknown_price, "ticket_price"].isna().all(),
         6,
         "blank and TBD prices must stay unknown",
+    )
+    prices = homework.parse_ticket_prices(labels)
+    require(
+        prices["ticket_price"]
+        .astype("Float64")
+        .equals(cleaned["ticket_price"].astype("Float64")),
+        6,
+        "saved prices differ from the Task 6 result",
     )
 
     expected_measures = {
@@ -155,43 +236,58 @@ def check_outputs() -> None:
         7,
         "cleaning audit measures differ",
     )
+    missing = homework.missing_counts_before_fill(prices)
+    audit_values = audit.set_index("measure")["value"]
+    for column, value in missing.items():
+        require(
+            audit_values[f"missing_{column}_before_fill"] == value,
+            7,
+            "a missing-value count is incorrect",
+        )
+
+    filled = homework.apply_missing_rule(prices)
     require(
-        cleaned["marketing_spend"].notna().all(),
+        filled["marketing_spend"].notna().all(),
         8,
         "marketing_spend still contains missing values",
     )
     require(
-        cleaned["fan_rating"].isna().sum() == raw["fan_rating"].isna().sum(),
+        filled["fan_rating"].equals(prices["fan_rating"]),
         8,
         "fan-rating missingness was changed",
     )
     require(
-        cleaned["tickets_sold"].isna().sum()
-        == raw["tickets_sold"].isna().sum(),
+        filled["tickets_sold"].equals(prices["tickets_sold"]),
         8,
         "attendance missingness was changed",
     )
 
-    audit_values = audit.set_index("measure")["value"]
+    attendance, revenue, ratings = homework.make_analysis_tables(filled)
     attendance_rows = int(audit_values["attendance_ready_rows"])
     revenue_rows = int(audit_values["revenue_ready_rows"])
     rating_rows = int(audit_values["rating_ready_rows"])
     require(
-        attendance_rows == cleaned["tickets_sold"].notna().sum(),
+        attendance_rows == len(attendance),
         9,
         "attendance-ready row count differs",
     )
     require(
-        revenue_rows
-        == cleaned[["tickets_sold", "ticket_price"]].notna().all(axis=1).sum(),
+        revenue_rows == len(revenue),
         9,
         "revenue-ready row count differs",
     )
     require(
-        rating_rows == cleaned["fan_rating"].notna().sum(),
+        rating_rows == len(ratings),
         9,
         "rating-ready row count differs",
     )
+    require(attendance["tickets_sold"].notna().all(), 9, "attendance table has unknown tickets")
+    require(
+        revenue[["tickets_sold", "ticket_price"]].notna().all().all(),
+        9,
+        "revenue table has an unknown required field",
+    )
+    require(ratings["fan_rating"].notna().all(), 9, "rating table has unknown ratings")
 
     chart = ROOT / "sell_through_by_region.png"
     require(

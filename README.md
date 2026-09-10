@@ -113,6 +113,5 @@ The datasets are fictional, committed, and read-only. Do not hand-edit them.
 If you want to test an idea, create a small scratch DataFrame in a new file.
 
 You work locally and commit locally. Nothing is submitted through GitHub. Keep
-both `worldstage_homework.py` and `tour_review.md` in your own words and upload
-the required files through the course submission channel named by your
-instructor.
+the code and review as your own work, and upload `worldstage_homework.py` and
+`tour_review.md` through the course submission channel named by your instructor.
