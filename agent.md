@@ -1,56 +1,53 @@
 # Working with Codex in this repo
 
-Codex reads `AGENTS.md` automatically. This page is the student's short guide
-to using the agent deliberately rather than accepting a polished-looking result.
+Codex reads `AGENTS.md` automatically. In this homework it is a coach and
+checker, not the author of your code.
 
-## For the WorldStage analysis
+## The productive loop
 
-Start with:
+1. Read one task in `worldstage_homework.py`.
+2. Predict the output's type, columns, and grain.
+3. Write the small missing piece yourself.
+4. Run:
+
+   ```text
+   uv run python check_homework.py
+   ```
+
+5. If it fails, inspect the first failing task and revise your attempt.
+
+When you want help, start Codex in this folder and enter:
 
 ```text
 /plan Execute @analysis-prompt.md
 ```
 
-Before approving the plan, check that it says all of the following:
+The agent may run the checker, ask questions, explain vocabulary, or use a tiny
+unrelated example. It may not edit `worldstage_homework.py`, provide a line you
+can paste into a homework task, reveal the final regional ranking, or write
+`tour_review.md`.
 
-- the clean table begins at one row per show and ends at one row per region;
-- `sell_through` is tickets sold divided by capacity;
-- `size`, `count`, and `nunique` are used for different questions;
-- the raw data is copied and raw columns are preserved;
-- each missing-value decision comes from `notes/data_dictionary.md`;
-- the agent will create only the files named in the prompt.
-
-After the run, enter `/diff`. Read the generated code in named steps. For each
-step, ask: What rows exist? What does one row mean? Which columns were created?
-What values became missing? What did the next operation remove or collapse?
-
-## Useful follow-up requests
-
-These are good requests because they expose reasoning without asking Codex to
-write your review:
+## Good requests
 
 ```text
-Show me the row count and grain after each named step, but do not recommend a region.
+My Task 2 result has the wrong grain. Ask me questions that help me locate why.
 ```
 
 ```text
-Audit whether the chart uses the same summary and units as the printed table.
+Explain named aggregation with a three-row bookstore example. Do not use the homework columns.
 ```
 
 ```text
-List every cleaning decision and point to the exact data-dictionary rule that supports it.
+Check whether my attempted Task 6 line treats known zero and unknown price differently. Do not rewrite it.
 ```
 
 ```text
-Give me a three-row invented example showing why size and count can differ.
+Run the checker and explain only the first failure category.
 ```
 
-## What not to delegate
+## Your responsibility
 
-Do not ask the agent to write `tour_review.md`, choose your final recommendation,
-or turn missing values into convenient numbers. The value of this module is your
-ability to explain what the pipeline computed, at what grain, from which rows,
-and with which assumptions.
-
-For practice rather than assignment work, say: *“Read tutor.md and tutor me.”*
-
+You must be able to explain every line you submit: what object enters, what
+object returns, whether rows were filtered or collapsed, and what missing
+values mean. A green checker is evidence that the pipeline works; it is not a
+substitute for your explanation.

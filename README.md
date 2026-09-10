@@ -21,8 +21,11 @@ This is the DSO-576 Module 4 repo.
 | `country_aliases.csv` | WorldStage's approved country and region lookup. Values absent from this file stay missing; do not guess. |
 | `notes/data_dictionary.md` | Column meanings and the business rules for `FREE`, blanks, `TBD`, ratings, and marketing spend. Read this before cleaning. |
 | `notes/vocabulary.md` | The Module 4 pandas vocabulary, organized by Monday and Wednesday. |
-| `analysis-prompt.md` | The bounded request for Codex. Tell it: *“Execute @analysis-prompt.md.”* |
-| `tour_review.md` | Your review template and the one file you write in your own words. |
+| `homework.md` | The assignment, ten code tasks, required outputs, and submission checklist. |
+| `worldstage_homework.py` | The protected code scaffold. You complete its ten short pandas tasks. |
+| `check_homework.py` | A read-only structural checker that reports task status without printing the answers. |
+| `analysis-prompt.md` | A bounded request that makes Codex review an attempt without supplying code. |
+| `tour_review.md` | Your evidence-based review template, written in your own words. |
 | `agent.md` | How you should work with Codex in this repo. |
 | `AGENTS.md` | Repository rules Codex reads automatically. |
 | `tutor.md` | Instructions that turn your agent into a Module 4 pandas tutor. |
@@ -53,15 +56,25 @@ Open a terminal in this folder and install the locked environment:
 uv sync
 ```
 
-Then open Codex in this folder and enter:
+Run the starter checker:
+
+```text
+uv run python check_homework.py
+```
+
+It should report Tasks 1–10 as unfinished. Read `homework.md`, complete one
+small `TODO` at a time in `worldstage_homework.py`, and rerun the checker after
+each attempt.
+
+If you need coaching, open Codex in this folder and enter:
 
 ```text
 /plan Execute @analysis-prompt.md
 ```
 
-Read the plan before you approve it. When Codex finishes, enter `/diff` and
-check that it created only the requested analysis outputs. Then inspect the
-tables and chart before writing `tour_review.md` yourself.
+Codex may explain a concept or check your attempt, but `AGENTS.md` prohibits it
+from editing the homework, giving you paste-ready code, printing the final
+regional winners, or writing `tour_review.md`.
 
 For quiz practice, start a separate conversation and say:
 
@@ -100,6 +113,6 @@ The datasets are fictional, committed, and read-only. Do not hand-edit them.
 If you want to test an idea, create a small scratch DataFrame in a new file.
 
 You work locally and commit locally. Nothing is submitted through GitHub. Keep
-`tour_review.md` in your own words and upload the required artifact through the
-course submission channel named by your instructor.
-
+both `worldstage_homework.py` and `tour_review.md` in your own words and upload
+the required files through the course submission channel named by your
+instructor.
