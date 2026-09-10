@@ -1,0 +1,21 @@
+show_id,region,country,month,tickets_sold,capacity,ticket_price,fan_rating
+S01,Asia,Japan,Jan,9000,10000,90,4.8
+S02,Asia,South Korea,Feb,8000,10000,80,4.7
+S03,Europe,France,Jan,7000,10000,100,4.3
+S04,Europe,United Kingdom,Feb,9000,12000,110,4.4
+S05,Europe,Germany,Mar,10000,14000,105,
+S06,America,Brazil,Jan,9500,10000,70,4.9
+S07,America,Mexico,Feb,8500,9000,65,4.8
+S08,Africa,Nigeria,Mar,4800,6000,50,
+S09,Africa,South Africa,Mar,5200,6500,55,4.6
+S10,Europe,France,Mar,8000,10000,85,4.5
+S11,Asia,Singapore,Mar,7500,9000,75,4.6
+S12,Asia,Thailand,Apr,8500,10000,88,
+S13,Asia,India,Apr,9200,11000,82,4.5
+S14,Europe,Spain,Apr,11000,15000,95,4.2
+S15,America,Argentina,Mar,7800,8500,68,4.7
+S16,America,Chile,Apr,8800,9500,72,
+S17,America,Colombia,Apr,9700,10500,75,4.9
+S18,Africa,Kenya,Jan,6100,7500,60,4.5
+S19,Africa,Egypt,Feb,5700,7000,58,4.4
+S20,Africa,Ghana,Apr,6300,8000,62,
