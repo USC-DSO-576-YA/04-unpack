@@ -1,6 +1,7 @@
+__pycache__/
+*.py[cod]
 .DS_Store
 .venv/
-__pycache__/
-.pytest_cache/
-.matplotlib/
-
+.streamlit/
+module4_submission.zip
+dashboard.png

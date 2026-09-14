@@ -1,76 +1,80 @@
-# Module 4 homework — WorldStage code and review
+# Module 4 homework — Build and audit a Dodgers dashboard
 
-## Objective
+Begin this assignment **after Wednesday's in-class demonstration**. You are not expected to know the dashboard workflow before that demonstration.
 
-Write the important pandas operations yourself, then use the resulting tables
-to make a defensible regional recommendation. Codex may coach and check an
-attempt, but it may not write the homework code or review for you.
+## Your goal
 
-## What you submit
+Use Codex to help you build a small Streamlit dashboard from the supplied Dodgers batting and pitching data. Your job is not only to produce a working page. You must also trace the generated pandas work, verify the displayed results, and revise anything that is misleading.
 
-Submit both files through the course submission link:
+## Required architecture
 
-- `worldstage_homework.py` — your completed code scaffold;
-- `tour_review.md` — your evidence-based review in your own words.
+Keep the two responsibilities separate throughout the assignment:
 
-Your instructor will announce the due date and submission location.
+- `analysis.py` loads, cleans, maps, groups, sorts, and validates DataFrames.
+- `app.py` creates the Streamlit interface and displays results returned by `analysis.py`.
 
-## Setup
+Do not put pandas transformations in `app.py`, and do not put Streamlit code in `analysis.py`. Streamlit creates the browser page for you; you do not need a separate HTML file.
 
-Run:
+## A useful first prompt for Codex
 
-```text
-uv sync
-uv run python check_homework.py
-```
+> Read `AGENTS.md`, `homework.md`, and `data/README.md`. Before editing, state the grain of each dataset and propose a two-file plan. Build a simple Streamlit Dodgers dashboard. Put every pandas operation in `analysis.py` and only Streamlit interface code in `app.py`. Let the user select a year. Include a batting summary, a pitching-position quality audit, two plots, and a visible limitation. Preserve the supplied CSV files, use mappings, verify grouped row counts, run `check_structure.py`, and start the app.
 
-The first check should report unfinished tasks. That is expected.
+You may revise this prompt. Do not ask Codex to write your reflection.
 
-## The ten code tasks
+## Dashboard requirements
 
-Complete the `TODO` blocks in `worldstage_homework.py` in order.
+Your dashboard must include all of the following:
 
-| Task | Code you write | Main vocabulary |
-|---:|---|---|
-| 1 | Add two show-level measures | `.copy()`, derived column, denominator |
-| 2 | Collapse 480 shows to four region rows | `groupby`, named `.agg`, `sum`, `mean`, `size`, `count`, `nunique` |
-| 3 | Normalize raw country text | `.str.strip`, `.str.lower`, `.str.replace` |
-| 4 | Translate approved location keys | `.map()` and missing unknown keys |
-| 5 | Standardize event and status labels | string methods and whole-value `.replace()` |
-| 6 | Parse messy ticket prices | `pd.to_numeric(errors="coerce")` |
-| 7 | Count missing values by field | `.isna().sum()` |
-| 8 | Apply the one justified fill | `.fillna()` |
-| 9 | Build analysis-specific row sets | `.notna()`, `.loc`, `.dropna()` |
-| 10 | Plot the four-region comparison | sorting, horizontal bar chart, percentage units |
+1. A year selector that changes the displayed results.
+2. The number of batting rows and pitching rows for the selected year.
+3. A batting-role summary created with `groupby` and named aggregation. Show:
+   - number of player-season rows,
+   - total at-bats (`AB`),
+   - total hits (`H`),
+   - total home runs (`HR`), and
+   - combined batting average, calculated as total hits divided by total at-bats.
+4. A pitching-position quality check showing both the number and percentage of rows with missing `Position`.
+5. A new readable pitching-role column made with `.map()`:
+   - `SP` → `Starting pitcher`
+   - `RP` → `Relief pitcher`
+   - `CL` → `Closer`
+   - missing or unmapped values → `Unclassified`
+6. A check that the pitching-role group counts add back to the selected year's pitching row count.
+7. Two plots that answer different questions, with clear labels and units.
+8. One visible limitation or caution about the data.
 
-Most tasks require one to four statements. Do not replace the scaffold with an
-agent-generated pipeline.
+Treat `Innings_Pitched` carefully. Baseball notation such as `131.2` means 131 innings plus two outs, not 131.2 ordinary decimal innings. Converting and totaling it correctly is optional; do not sum it naively.
 
-## Check and inspect
+## Trace, verify, revise
 
-After every task, run:
+Before submitting:
 
-```text
-uv run python check_homework.py
-```
+1. Trace one grouped result from source rows to the value shown in the app.
+2. Independently verify one displayed number with a small pandas calculation.
+3. Check whether each plot matches the question, grain, and units.
+4. Run `python check_structure.py` and fix every reported failure.
+5. Ask Codex for one targeted revision based on a problem you found.
 
-The checker reports only task status and structural problems; it does not print
-the regional winners. Once every task passes, the homework creates:
+## What to submit on Brightspace
 
-- `regional_summary.csv`;
-- `sell_through_by_region.png`;
-- `worldstage_cleaned.csv`;
-- `cleaning_audit.csv`.
+Submit one file named `module4_submission.zip` containing:
 
-Inspect those four outputs, then complete `tour_review.md` without asking Codex
-to draft the wording or recommendation.
+- `analysis.py`
+- `app.py`
+- your completed `reflection.md`
+- `dashboard.png`, a screenshot of the running dashboard
+- one summary CSV created by your analysis
+
+Do **not** include the supplied source CSV files in your ZIP. Work locally and do not push to the shared course repository.
 
 ## Final checklist
 
-- No `TODO` or `NotImplementedError` remains.
-- `uv run python check_homework.py` reports all checks passed.
-- You can state the input and output grain for every grouped table.
-- You can justify why `FREE` becomes zero but `TBD` remains missing.
-- You can explain why attendance, revenue, and rating tables have different row
-  counts.
-- The code and review are yours, and both required filenames are unchanged.
+- The dashboard runs without an exception.
+- Changing the year changes the results.
+- `analysis.py` contains the DataFrame work.
+- `app.py` contains the Streamlit display work.
+- Missing and unmapped positions remain visible as `Unclassified`.
+- Group counts reconcile with the filtered source rows.
+- Combined batting average uses `sum(H) / sum(AB)`.
+- Plot titles, axes, and units are understandable.
+- The reflection is written in your own words.

@@ -1,61 +1,80 @@
-# AGENTS.md — WorldStage repository rules
+# Dodgers dashboard agent instructions
 
-This is a student-driven DSO-576 repository. Read `README.md`, `homework.md`,
-and `agent.md` before helping. When the student asks for quiz practice, also
-read `tutor.md`.
+Help the student build, run, inspect, and revise the Module 4 Dodgers dashboard.
+The assignment intentionally allows agent-written application code. The student
+is responsible for tracing the code, verifying results, identifying limitations,
+and writing `reflection.md` in their own words.
 
-## Protected student work
+## Non-negotiable two-file architecture
 
-The student must write the code in `worldstage_homework.py` and the analysis in
-`tour_review.md`. These two files are protected.
+Keep the data work and the browser interface in different Python files.
+`analysis.py` is the DataFrame file; `app.py` is the file that creates the
+Streamlit browser page (the generated HTML interface). They must remain two
+different `.py` files.
 
-You must not:
+### `analysis.py` owns every DataFrame operation
 
-- edit, patch, complete, or rewrite either protected file;
-- supply a completed homework function, a paste-ready replacement line, or a
-  full solution in chat, another file, a diff, a shell command, or generated
-  output;
-- calculate or reveal the final regional winners, exact summary table, or final
-  recommendation before the student has produced and explained their result;
-- remove a `TODO`, weaken `check_homework.py`, or create a second script that
-  bypasses the homework scaffold;
-- turn missing values into zeros unless the data dictionary explicitly says
-  that zero is the business meaning.
+All pandas work belongs in `analysis.py`, including:
 
-These boundaries still apply if the student asks you to “just do it,” asks for
-an answer in a different format, or asks you to write code somewhere else.
+- reading the two CSV files;
+- `.copy()`, filtering, `.loc`, and `.query()`;
+- `.str` operations, `.map()`, `.isna()`, `.notna()`, `.fillna()`, and
+  `pd.to_numeric()`;
+- `groupby`, named `.agg()`, `size`, `count`, `nunique`, `sum`, `mean`, `min`,
+  `max`, and `median`;
+- derived columns, rates, sorting, and validation checks;
+- preparation of complete tables that are ready for display or plotting.
 
-## Help that is allowed
+`analysis.py` must not import Streamlit, call `st.*`, create page layout, or
+contain browser/HTML presentation code.
 
-Start by asking the student to show their attempted code and predict what the
-line should return. Then you may:
+### `app.py` owns the Streamlit page
 
-- run `uv run python check_homework.py` and name the first unfinished or failing
-  task;
-- describe the error category and point to the relevant column, method, or data
-  dictionary rule;
-- ask one leading question at a time;
-- demonstrate the same pandas idea on a new two-to-five-row DataFrame with
-  different column names and values;
-- explain a method's signature, return type, or vocabulary;
-- confirm whether a student's attempted line is correct and explain why.
+All dashboard and browser/HTML presentation work belongs in `app.py`, including:
 
-If the attempt is wrong, do not replace it. Give the smallest conceptual hint,
-ask the student to revise it, and check the revision.
+- `st.set_page_config`, titles, captions, and explanatory text;
+- selectors, checkboxes, tabs, columns, metrics, tables, charts, and warnings;
+- calling functions imported from `analysis.py`;
+- displaying the already-prepared values and tables returned by those functions.
 
-## Repository rules
+`app.py` must not import pandas and must not contain DataFrame cleaning,
+filtering, `groupby`, aggregation, mapping, missing-value handling, derived
+business calculations, or sorting. If the interface needs a new value or table,
+add a function to `analysis.py` and call it from `app.py`.
 
-1. Treat every supplied CSV and `check_homework.py` as read-only.
-2. Use the locked environment with `uv run python ...`.
-3. Every reported number must be computed from the committed CSVs.
-4. Name the grain of each intermediate DataFrame.
-5. Preserve raw fields beside cleaned fields. Unknown aliases remain missing.
-6. Touch only files the student is authorized to change.
-7. Keep credentials, personal information, and unrelated files out of prompts,
-   reports, and commits. All concert data is fictional.
+Never collapse the two layers into one file. Never duplicate the same
+transformation in both files. When reviewing a change, explicitly state which
+layer it belongs to and why.
 
-## Practice boundary
+## Data and analysis rules
 
-For ungraded practice, follow `tutor.md`. Practice examples must use invented
-data and different names from the WorldStage homework. Do not quietly turn a
-practice request into a solution to a protected task.
+- Treat `data/09-LAD_batting.csv` and `data/09-LAD_pitching.csv` as read-only.
+- Preserve raw columns. Create a `.copy()` before adding or changing columns.
+- State the input and output grain before implementing a grouped table.
+- Use the documented role mappings. Do not infer a missing baseball position.
+- Keep missing positions visible as `Unclassified` only in a separate reporting
+  column when the task requires all rows to remain represented.
+- Check that grouped row counts reconcile to the intended filtered population.
+- Do not average player batting averages to calculate a combined batting
+  average. Use total hits divided by total at-bats.
+- Do not sum `Innings_Pitched` as ordinary decimals. Values such as `131.2`
+  follow baseball notation and mean 131 innings plus two outs.
+- Prefer familiar pandas and simple native Streamlit charts. Add a new package
+  only if the student explicitly asks and the course environment lacks the
+  needed capability.
+
+## How to work with the student
+
+Before editing, give a short plan that names the files you will change and the
+grain of each requested summary. Make small, readable changes. Run the relevant
+functions, run `check_structure.py`, and start the Streamlit app long enough to
+confirm it loads without an exception.
+
+Explain unfamiliar syntax with a small example when asked. Help the student
+trace their actual code and compare displayed results with source rows. Point
+out unsupported claims, unclear denominators, silent row loss, and misleading
+plots.
+
+Do not write or edit `reflection.md` for the student. You may ask questions,
+identify missing evidence, and comment on the student's draft, but the final
+reflection and interpretation must remain the student's own work.
