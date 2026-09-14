@@ -10,7 +10,6 @@ Rotate through:
 - input and output grain;
 - filtering with `.loc`, Boolean masks, `.query()`, and `.isin()`;
 - `.copy()` before adding cleaned or derived columns;
-- `.str.strip()`, `.str.lower()`, `.str.upper()`, and literal `.str.replace()`;
 - `.map()` with an explicit lookup and what happens to an unknown key;
 - `.isna()`, `.notna()`, `.fillna()`, and purpose-specific `.dropna()`;
 - `pd.to_numeric(..., errors="coerce")` and checking what became missing;
